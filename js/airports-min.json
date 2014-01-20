@@ -1,0 +1,40 @@
+[
+{ "country": "Singapore", 
+	"airports":[ 
+	{ 
+		"city" : "Singapore", 
+		"lat":1.3514399,
+		"lng":103.9850929,
+		"iata":"SIN",
+		"title":"Changi Intl",
+		"img-url" : null
+	}
+] },
+{ "country": "Philippines", 
+	"airports":[ 
+	{ 
+		"city" : "Cebu", 
+		"lat": 10.3084028,
+		"lng": 123.9763952,
+		"iata":"CEB",
+		"title":"Mactan Cebu Intl",
+		"img-url" : null
+	},
+	{ 
+		"city" : "Davao", 
+		"lat": 7.125278,
+		"lng": 125.645556,
+		"iata":"DVO",
+		"title":"Francisco Bangoi Intl",
+		"img-url" : null
+	},
+	{ 
+		"city" : "Manila", 
+		"lat": 14.5086111,
+		"lng": 121.0194444,
+		"iata":"MNL",
+		"title":"Ninoy Aquino Intl",
+		"img-url" : null
+	}
+] }
+]

@@ -14,6 +14,8 @@ var Map = function (element, mapid, options){
     // extend passed options and defaults
     this.options = $.extend({}, options, defaults);
 
+    this.startPt = _t.options.initPosition;
+
     this.map = L.mapbox.map(element)
     .setView(_t.options.initPosition, _t.options.zoom)
     .addLayer(L.mapbox.tileLayer(mapid , {
@@ -23,17 +25,19 @@ var Map = function (element, mapid, options){
     this.map.on({
         click: function(e){
 
-            var b = new R.BezierAnim2([_t.options.initPosition, e.latlng], {'stroke': '#333', 'alongBezier': 0, 'stroke-width': 3 }, {}, {}, 1000);
+            var b = new R.BezierAnim2([_t.startPt, e.latlng], {'stroke': '#333', 'alongBezier': 0, 'stroke-width': 1, 'stroke-dasharray': "- " }, {}, {}, 700);
             var p = new R.Pulse2(
                 e.latlng, 
-                6,
-                {'stroke': '#ffffff', 'fill': '#000000'}, 
-                {'stroke': '#333333', 'stroke-width': 1},
+                19,
+                {'stroke': 'rgba(0,0,0,0)'}, 
+                {'stroke': '#cbcbcb', 'stroke-width': 1},
                 {}, 600
             );
 
             _t.map.addLayer(p);
             _t.map.addLayer(b);
+
+            _t.startPt = e.latlng;
         }
     });
 
