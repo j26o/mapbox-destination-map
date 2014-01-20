@@ -23,19 +23,16 @@ var Map = function (element, mapid, options){
     this.map.on({
         click: function(e){
 
-            var b = new R.BezierAnim([_t.options.initPosition, e.latlng], {}, function() {
-                var p = new R.Pulse(
-                        e.latlng, 
-                        6,
-                        {'stroke': '#ffffff', 'fill': '#ffffff'}, 
-                        {'stroke': '#333333', 'stroke-width': 2});
+            var b = new R.BezierAnim2([_t.options.initPosition, e.latlng], {'stroke': '#333', 'alongBezier': 0, 'stroke-width': 3 }, {}, {}, 1000);
+            var p = new R.Pulse2(
+                e.latlng, 
+                6,
+                {'stroke': '#ffffff', 'fill': '#000000'}, 
+                {'stroke': '#333333', 'stroke-width': 1},
+                {}, 600
+            );
 
-                _t.map.addLayer(p);
-                setTimeout(function() {
-                    _t.map.removeLayer(b).removeLayer(p);
-                }, 3000);
-            });
-            
+            _t.map.addLayer(p);
             _t.map.addLayer(b);
         }
     });
