@@ -117,6 +117,34 @@ html,body {
     left: 30px;
 }
 
+.marker-style {
+    background:#00266b;
+    text-align:center;
+    vertical-align:middle;
+    border:1px solid #00266b;
+    border-radius:20px;
+    line-height:40px;
+    display: block;
+
+    color: white;
+    /*opacity: 0;*/
+    transition: opacity 1s;
+    transition-timing-function: ease-in-out;
+}
+
+.marker-style.active {
+    opacity: 1;
+}
+
+/*.marker-style:hover {
+    color: #00266b;
+}*/
+
+/*.marker-style:hover:before {
+    content: "+";
+    color: white;
+}*/
+
 
 
 

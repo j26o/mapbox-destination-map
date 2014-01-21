@@ -11,33 +11,54 @@ var Map = function (element, mapid, options){
         zoom: 11
     };
 
+    this.count = 1;
+
     // extend passed options and defaults
     this.options = $.extend({}, options, defaults);
 
     this.startPt = _t.options.initPosition;
 
+    this.markers = [];
+
     this.map = L.mapbox.map(element)
     .setView(_t.options.initPosition, _t.options.zoom)
     .addLayer(L.mapbox.tileLayer(mapid , {
-        detectRetina: true
+        detectRetina: false
     }));
 
     this.map.on({
         click: function(e){
+            // multicity maximum is 6
+            if(_t.count < 7) {
+                var b = new R.BezierAnim([_t.startPt, e.latlng], {'stroke': '#333', 'alongBezier': 0, 'stroke-width': 1, 'stroke-dasharray': "- " }, function(){}, {}, 700);
 
-            var b = new R.BezierAnim2([_t.startPt, e.latlng], {'stroke': '#333', 'alongBezier': 0, 'stroke-width': 1, 'stroke-dasharray': "- " }, {}, {}, 700);
-            var p = new R.Pulse2(
-                e.latlng, 
-                19,
-                {'stroke': 'rgba(0,0,0,0)'}, 
-                {'stroke': '#cbcbcb', 'stroke-width': 1},
-                {}, 600
-            );
+                var p = new R.Pulse(
+                    e.latlng, 
+                    19,
+                    {'stroke': 'rgba(0,0,0,0)'},
+                    {'stroke': '#cbcbcb', 'stroke-width': 1},
+                    {}, 600
+                );
 
-            _t.map.addLayer(p);
-            _t.map.addLayer(b);
+                var marker = L.marker(e.latlng, {
+                        icon: L.divIcon({
+                            className: 'marker-style',
+                            html: _t.count,
+                            iconSize: [40, 40]
+                        })
+                    });
 
-            _t.startPt = e.latlng;
+                marker.addTo(_t.map);
+
+                _t.startPt = e.latlng;
+
+                _t.count++;
+
+                _t.map.addLayer(p);
+                _t.map.addLayer(b);
+
+                _t.markers.push([marker,plane,p,b]);
+            }
         }
     });
 
