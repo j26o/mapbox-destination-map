@@ -1,5 +1,5 @@
 $(function() {
-    var map = new Map('map', 'wtfroland.gn6p6aeg');
+    var map = new Map('map', 'singaporeairline.h2m51k5n');
 });
 
 var Map = function (element, mapid, options){
@@ -8,7 +8,7 @@ var Map = function (element, mapid, options){
     var defaults = {
         animationSpeed : 700,
         initPosition : [1.3, 103.8],
-        zoom: 11
+        zoom: 2
     };
 
     this.count = 1;
@@ -57,7 +57,7 @@ var Map = function (element, mapid, options){
                 _t.map.addLayer(p);
                 _t.map.addLayer(b);
 
-                _t.markers.push([marker,plane,p,b]);
+                _t.markers.push([marker,p,b]);
             }
         }
     });
@@ -72,7 +72,10 @@ var Map = function (element, mapid, options){
         },
         geoSuccess : function(position) {
             _t.options.position = position;
-            _t.map.setView([position.coords.latitude, position.coords.longitude], _t.map.getZoom() + 1, true);
+
+            // _t.map.setView([position.coords.latitude, position.coords.longitude]);
+
+            console.log(position);
         },
         geoError : function(e){
             console.log('this error occured:', e);
