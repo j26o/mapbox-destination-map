@@ -30,7 +30,7 @@ var Map = function (element, mapid, options){
         click: function(e){
             // multicity maximum is 6
             if(_t.count < 7) {
-                var b = new R.BezierAnim([_t.startPt, e.latlng], {'stroke': '#333', 'alongBezier': 0, 'stroke-width': 1, 'stroke-dasharray': "- " }, function(){}, {}, 700);
+                var b = new R.BezierAnim([_t.startPt, e.latlng], {'stroke': '#333', 'alongBezier': 0, 'stroke-width': 1, 'stroke-dasharray': "- " }, function(){}, {}, 1000);
 
                 var p = new R.Pulse(
                     e.latlng, 

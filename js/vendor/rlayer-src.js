@@ -125,11 +125,13 @@ R.BezierAnim = R.Layer.extend({
 		
 		if(this._path) this._path.remove();
 		if(this._sub) this._sub.remove();
+		if(this._plane) this._plane.remove();
 	},
 
 	projectLatLngs: function() {
 		if(this._path) this._path.remove();
 		if(this._sub) this._sub.remove();
+		if(this._plane) this._plane.remove();
 		
 		var self = this,
 			start = this._map.latLngToLayerPoint(this._latlngs[0]),
@@ -157,7 +159,37 @@ R.BezierAnim = R.Layer.extend({
 			alongBezier: 1
 		}, self._dur, function() {
 			self._cb();
+
+			pl.attr({
+				x: start.x,
+				y: start.y,
+				'along': 0,
+				fill : '#333',
+				stroke : '0'
+			});
+			pl.animate({along: 1}, self._dur, function () {
+	            // pl.attr({along: 0});
+	        });
+		})
+		.onAnimation(function (e) {
+			// console.log('plane animating', e);
 		});
+
+		var pl = this._plane = this._paper.path('M93.589 44.229c7.248.012 7.248 10.92-.2 10.93h-30.338l-25.588 42.487h-11.181l13.886-42.285h-22.672l-7.66 9.757h-8.836l4.648-15.069-4.648-15.111h8.836l7.66 9.701h22.672l-13.89-42.285h11.185l25.588 41.876 30.538-.001z');
+
+		var scale = 0.3;
+
+		this._paper.customAttributes.along = function (v) {
+            var len = line.getTotalLength();
+            var point = line.getPointAtLength(v * len);
+
+            return {
+                transform: "t" + [Math.ceil(point.x), Math.ceil(point.y)] + "r" + point.alpha + "s"+scale+","+scale+",0,0"
+            };
+        };
+
+        //<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M93.589 44.229c7.248.012 7.248 10.92-.2 10.93h-30.338l-25.588 42.487h-11.181l13.886-42.285h-22.672l-7.66 9.757h-8.836l4.648-15.069-4.648-15.111h8.836l7.66 9.701h22.672l-13.89-42.285h11.185l25.588 41.876 30.538-.001z"/></svg>
+
 	},
 
 	getControlPoint: function(start, end) {
