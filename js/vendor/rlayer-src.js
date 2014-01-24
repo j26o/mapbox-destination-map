@@ -159,36 +159,91 @@ R.BezierAnim = R.Layer.extend({
 			alongBezier: 1
 		}, self._dur, function() {
 			self._cb();
-
-			pl.attr({
-				x: start.x,
-				y: start.y,
-				'along': 0,
-				fill : '#333',
-				stroke : '0'
-			});
-			pl.animate({along: 1}, self._dur, function () {
-	            // pl.attr({along: 0});
-	        });
-		})
-		.onAnimation(function (e) {
-			// console.log('plane animating', e);
 		});
+	},
 
-		var pl = this._plane = this._paper.path('M93.589 44.229c7.248.012 7.248 10.92-.2 10.93h-30.338l-25.588 42.487h-11.181l13.886-42.285h-22.672l-7.66 9.757h-8.836l4.648-15.069-4.648-15.111h8.836l7.66 9.701h22.672l-13.89-42.285h11.185l25.588 41.876 30.538-.001z');
+	getControlPoint: function(start, end) {
+		var cp = { x: 0, y: 0 };
+		cp.x = start.x + (end.x - [start.x]) / 2;
+		cp.y = start.y + (end.y - [start.y]) / 2;
+		var amp = 0;
 
-		var scale = 0.3;
+		if (this.closeTo(start.x, end.x) && !this.closeTo(start.y, end.y)) {
+			amp = (start.x - end.x) * 1 + 15 * (start.x >= end.x ? 1 : -1);
+			cp.x = Math.max(start.x, end.x) + amp;
+		} else {
+			amp = (end.y - start.y) * 1.5 + 15 * (start.y < end.y ? 1 : -1);
+			cp.y = Math.min(start.y, end.y) + amp;
+		}
+		return cp;
+	},
+
+	closeTo: function(a, b) {
+		var t = 15;
+  		return (a - b > -t && a - b < t);
+	}
+});
+
+R.AlongPath = R.Layer.extend({
+	initialize: function(shape, latlngs, attr, cb, options, duration) {
+		R.Layer.prototype.initialize.call(this, options);
+
+		this._latlngs = latlngs;
+		this._attr = attr;
+		this._cb = cb;
+		this._dur = duration;
+		this._shapestring = shape;
+	},
+
+	onRemove: function (map) {
+		R.Layer.prototype.onRemove.call(this, map);
+		
+		if(this._path) this._path.remove();
+		if(this._shape) this._shape.remove();
+	},
+
+	projectLatLngs: function() {
+		if(this._path) this._path.remove();
+		if(this._shape) this._shape.remove();
+		
+		var self = this,
+			start = this._map.latLngToLayerPoint(this._latlngs[0]),
+			end = this._map.latLngToLayerPoint(this._latlngs[1]),
+			cp = this.getControlPoint(start, end),
+			pathString = 'M' + start.x + ' ' + start.y + 'Q' + cp.x + ' ' + cp.y + ' ' + end.x + ' ' + end.y,
+			line = this._paper.path(pathString).hide();
+
+		self._attr.x = start.x;
+		self._attr.y = start.y;
+		self._attr['along'] = 0;
+
+		var pl = this._shape = this._paper.path(self._shapestring)
+			.data('bezierPath', line)
+			.data('pathLength', line.getTotalLength())
+			.attr(self._attr);
 
 		this._paper.customAttributes.along = function (v) {
-            var len = line.getTotalLength();
-            var point = line.getPointAtLength(v * len);
+            var len = this.data('pathLength');
+            var point = this.data('bezierPath').getPointAtLength(v * len);
+
+            var bbox = this.getBBox();
+            // console.log(bbox.x, point.x);
+
+            var tx = Math.ceil(point.x - (bbox.width * 1.9));
+            var ty = Math.ceil(point.y - (bbox.height * 1.9));
 
             return {
-                transform: "t" + [Math.ceil(point.x), Math.ceil(point.y)] + "r" + point.alpha + "s"+scale+","+scale+",0,0"
-            };
+                transform: [ 't', tx, ty, "r", point.alpha ]
+                // [ "S", "2.0", "2.0", bbox.x + bbox.width / 2, bbox.y + bbox.height / 2 ]
+                // [ "R", 45, bbox.x + bbox.width / 2, bbox.y + bbox.height / 2 ]
+            }
         };
 
-        //<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M93.589 44.229c7.248.012 7.248 10.92-.2 10.93h-30.338l-25.588 42.487h-11.181l13.886-42.285h-22.672l-7.66 9.757h-8.836l4.648-15.069-4.648-15.111h8.836l7.66 9.701h22.672l-13.89-42.285h11.185l25.588 41.876 30.538-.001z"/></svg>
+		pl.animate({along: 1}, self._dur, function () {
+            self._cb();
+        }).onAnimation(function (e) {
+			
+		});
 
 	},
 
