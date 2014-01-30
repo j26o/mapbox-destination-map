@@ -205,45 +205,63 @@ R.AlongPath = R.Layer.extend({
 	projectLatLngs: function() {
 		if(this._path) this._path.remove();
 		if(this._shape) this._shape.remove();
+
+		var start = this._map.latLngToLayerPoint(this._latlngs[0]);
+		var end = this._map.latLngToLayerPoint(this._latlngs[1]);
 		
 		var self = this,
-			start = this._map.latLngToLayerPoint(this._latlngs[0]),
-			end = this._map.latLngToLayerPoint(this._latlngs[1]),
 			cp = this.getControlPoint(start, end),
 			pathString = 'M' + start.x + ' ' + start.y + 'Q' + cp.x + ' ' + cp.y + ' ' + end.x + ' ' + end.y,
 			line = this._paper.path(pathString).hide();
 
 		self._attr.x = start.x;
 		self._attr.y = start.y;
-		self._attr['along'] = 0;
+		self._attr.curx = start.x;
+		self._attr.cury = start.y;
 
 		var pl = this._shape = this._paper.path(self._shapestring)
 			.data('bezierPath', line)
 			.data('pathLength', line.getTotalLength())
 			.attr(self._attr);
 
+		pl.attrs.along = 0;
+
 		this._paper.customAttributes.along = function (v) {
             var len = this.data('pathLength');
+
+            // Get current point and an advanced point to get a smoother rotation
             var point = this.data('bezierPath').getPointAtLength(v * len);
+            var point2 = this.data('bezierPath').getPointAtLength((v+0.095) * len);
 
+            // Assign bbox value to va var. Thi swill be used to center the craft.
             var bbox = this.getBBox();
-            // console.log(bbox.x, point.x);
 
-            var tx = Math.ceil(point.x - (bbox.width * 1.9));
-            var ty = Math.ceil(point.y - (bbox.height * 1.9));
+            // box offset
+            var bo = 1.85;
+            var tx = Math.ceil(point.x - (bbox.width * bo));
+            var ty = Math.ceil(point.y - (bbox.height * bo));
+            var tx2 = Math.ceil(point2.x - (bbox.width * bo));
+            var ty2 = Math.ceil(point2.y - (bbox.height * bo));
+
+            // Get the rotation value
+            var dx = tx - tx2;
+            var dy = ty - ty2;
+            var rot = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            // Fade out when 75% complete
+            if(v > 0.75) {
+            	var op = Math.abs( (v-1) * 4 );
+            	this.attr('opacity', op);
+            }
 
             return {
-                transform: [ 't', tx, ty, "r", point.alpha ]
-                // [ "S", "2.0", "2.0", bbox.x + bbox.width / 2, bbox.y + bbox.height / 2 ]
-                // [ "R", 45, bbox.x + bbox.width / 2, bbox.y + bbox.height / 2 ]
+                transform: [ 't', tx, ty, "r", (rot+180) ]
             }
         };
 
 		pl.animate({along: 1}, self._dur, function () {
             self._cb();
-        }).onAnimation(function (e) {
-			
-		});
+        });
 
 	},
 
